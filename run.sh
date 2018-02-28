@@ -1,5 +1,7 @@
 #!/bin/bash
 
 while read line; do
-    scrapy runspider src/ArticleSpider.py -a max_articles=5000 -a tag="$line"
+    scrapy runspider src/main_spider.py -a tag="$line"
 done < tags.txt
+
+#-s LOG_ENABLED=False
