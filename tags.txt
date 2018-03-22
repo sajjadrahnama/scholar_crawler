@@ -1,2 +1,1 @@
-speech processing
-pattern recognition
+Speech processing

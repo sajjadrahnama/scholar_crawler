@@ -29,10 +29,11 @@ class ArticleModel:
             self.year = data['year']
             self.citations = data['citations']
             self.citations_link = data['citations_link']
-            if 'tag' in data:
-                self.tags = {data['tag']: data['index']}
+            self.citations_flag = data['citations_flag']
+            if 'topic' in data:
+                self.topics = {data['topic']: data['index']}
             else:
-                self.tags = {}
+                self.topics = {}
 
     def fetch(self, _id):
         document = self.collection.find_one({'_id': ObjectId(_id)})
@@ -42,9 +43,9 @@ class ArticleModel:
     def save(self):
         doc = self.existence_check()
         if doc:
-            tags = self.tags
+            topics = self.topics
             self.set_data(doc)
-            self.tags = {**tags, **self.tags}
+            self.topics = {**topics, **self.topics}
             self.update()
         else:
             self.insert()
@@ -53,23 +54,25 @@ class ArticleModel:
         self._id = data['_id']
         self.title = data['title']
         self.link = data['link']
-        self.tags = data['tags']
+        self.topics = data['topics']
         self.authors = data['authors']
         self.abstract = data['abstract']
         self.year = data['year']
         self.citations = data['citations']
         self.citations_link = data['citations_link']
+        self.citations_flag = data['citations_flag']
 
     def update(self):
         result = self.collection.update_one({'_id': ObjectId(self._id)}, {"$set": {
             'title': self.title,
             'link': self.link,
-            'tags': self.tags,
+            'topics': self.topics,
             'authors': self.authors,
             'abstract': self.abstract,
             'year': self.year,
             'citations': self.citations,
             'citations_link': self.citations_link,
+            'citations_flag': self.citations_flag,
         }}, upsert=False)
         print(result.matched_count)
 
@@ -77,12 +80,13 @@ class ArticleModel:
         self._id = self.collection.insert_one({
             'title': self.title,
             'link': self.link,
-            'tags': self.tags,
+            'topics': self.topics,
             'authors': self.authors,
             'abstract': self.abstract,
             'year': self.year,
             'citations': self.citations,
             'citations_link': self.citations_link,
+            'citations_flag': self.citations_flag,
         }).inserted_id
 
     def existence_check(self):

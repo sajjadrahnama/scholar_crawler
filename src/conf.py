@@ -11,5 +11,6 @@
 ####################
 
 dbHost = "localhost"
-dbName = "pchef"
 dbPort = 27017
+maxArticle = 10
+maxCArtcile = 20
