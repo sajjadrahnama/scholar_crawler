@@ -2,8 +2,7 @@ import scrapy
 import re
 import logging
 import time
-from pymongo import MongoClient
-from conf import *
+from conf import db_client, maxArticle
 from article_model import ArticleModel
 
 
@@ -62,7 +61,7 @@ def extract_authors(raw):
 
 
 def insert_topic(topic):
-    collection = MongoClient(dbHost, dbPort).scholar.topics
+    collection = db_client().scholar.topics
     existed_topic = collection.find_one({'topic': topic})
     if not existed_topic:
         collection.insert_one({'topic': topic})

@@ -2,8 +2,7 @@ import scrapy
 import re
 import logging
 import time
-from conf import *
-from pymongo import MongoClient
+from conf import db_client, maxCArtcile
 from article_model import ArticleModel
 
 
@@ -14,11 +13,11 @@ class CitationSpider(scrapy.Spider):
 
     def __init__(self):
         logging.getLogger('scrapy').setLevel(logging.ERROR)
-        self.collection = MongoClient(dbHost, dbPort).scholar.citaions
+        self.collection = db_client().scholar.citaions
         super().__init__()
 
     def start_requests(self):
-        collection = MongoClient(dbHost, dbPort).scholar.articles
+        collection = db_client().scholar.articles
         cursor = collection.find({'citations_flag': False})
         for article in cursor:
             yield scrapy.Request(url=article['citations_link'] + 'start=0', callback=self.parse,

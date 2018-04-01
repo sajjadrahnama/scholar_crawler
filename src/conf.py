@@ -9,8 +9,18 @@
 ####################
 # configuration part
 ####################
+from pymongo import MongoClient
 
 dbHost = "localhost"
 dbPort = 27017
+dbUser = ''
+dbPass = ''
 maxArticle = 10
 maxCArtcile = 20
+
+
+def db_client():
+    if dbPass and dbUser:
+        return MongoClient(dbHost, dbPort, username=dbUser, password=dbPass)
+    else:
+        return MongoClient(dbHost, dbPort)

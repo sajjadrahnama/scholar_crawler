@@ -8,16 +8,15 @@
 # =======================================
 
 from bson.objectid import ObjectId
-from pymongo import MongoClient
-
-from conf import *
+from conf import db_client
 
 
 class ArticleModel:
     """Article MongoDB Model"""
 
     def __init__(self, data):
-        self.collection = MongoClient(dbHost, dbPort).scholar.articles
+
+        self.collection = db_client().scholar.articles
         if type(data) == 'string':
             self.fetch(data)
         else:
@@ -74,7 +73,7 @@ class ArticleModel:
             'citations_link': self.citations_link,
             'citations_flag': self.citations_flag,
         }}, upsert=False)
-        print(result.matched_count)
+        # print(result.matched_count)
 
     def insert(self):
         self._id = self.collection.insert_one({
