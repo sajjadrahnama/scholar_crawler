@@ -2,10 +2,10 @@ import scrapy
 import re
 import logging
 import time
-from conf import db_client, maxCArtcile, productionMode
-from article_model import ArticleModel
-from tor import change_ip
-from user_agent import RandomUserAgent
+from src.conf import db_client, maxCArtcile, productionMode
+from src.article_model import ArticleModel
+from src.tor import change_ip
+from src.user_agent import RandomUserAgent
 
 
 class CitationSpider(scrapy.Spider):
@@ -15,6 +15,7 @@ class CitationSpider(scrapy.Spider):
 
     custom_settings = {
         'DOWNLOAD_DELAY': 3,
+        'COOKIES_ENABLED': False
     }
 
     def __init__(self):

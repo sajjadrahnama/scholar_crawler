@@ -8,7 +8,7 @@
 # =======================================
 
 from bson.objectid import ObjectId
-from conf import db_client
+from src.conf import db_client
 
 
 class ArticleModel:

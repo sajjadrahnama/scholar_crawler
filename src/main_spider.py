@@ -2,10 +2,10 @@ import scrapy
 import re
 import logging
 import time
-from conf import db_client, maxArticle, productionMode
-from article_model import ArticleModel
-from tor import change_ip
-from user_agent import RandomUserAgent
+from src.conf import db_client, maxArticle, productionMode, save_topic
+from src.article_model import ArticleModel
+from src.tor import change_ip
+from src.user_agent import RandomUserAgent
 
 
 class MainSpider(scrapy.Spider):
@@ -14,23 +14,24 @@ class MainSpider(scrapy.Spider):
     name = "main"
 
     custom_settings = {
-        'DOWNLOAD_DELAY': 3
+        'DOWNLOAD_DELAY': 3,
+        'COOKIES_ENABLED': False
     }
 
-    def __init__(self, topic):
+    def __init__(self, topic, index):
         logging.getLogger('scrapy').setLevel(logging.ERROR)
-        self.start = 0
+        self.start = index
         self.topic = topic
         self.user_agents = RandomUserAgent()
         super().__init__()
 
     def start_requests(self):
-        base_url = "https://scholar.google.com/scholar?as_vis=1&as_sdt=1,5&q={}&hl=en&start=0"
+        base_url = "https://scholar.google.com/scholar?as_vis=1&as_sdt=1,5&q={}&hl=en&start=" + str(self.start)
         url = base_url.format(re.sub(' ', '+', self.topic))
-        insert_topic(self.topic)
         req = scrapy.Request(url=url, callback=self.parse)
         req = self.user_agents.set_header(req)
-        yield req
+        if self.start < maxArticle:
+            yield req
 
     def parse(self, response):
         log(response)
@@ -61,6 +62,9 @@ class MainSpider(scrapy.Spider):
                 log(response, i)
             if not response.css('.gs_r.gs_or.gs_scl .gs_ri'):
                 log(response, -400)
+            else:
+                save_topic(self.topic, self.start + 10)
+
         self.start += 10
 
         if self.start % 250 == 0 and productionMode:
@@ -78,13 +82,6 @@ def extract_authors(raw):
     raw = re.sub(' - .*', '', raw)
     raw = re.split('\s*,\s*', raw)
     return raw, year
-
-
-def insert_topic(topic):
-    collection = db_client().scholar.topics
-    existed_topic = collection.find_one({'topic': topic})
-    if not existed_topic:
-        collection.insert_one({'topic': topic})
 
 
 def log(response, error=-1):

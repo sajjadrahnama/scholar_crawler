@@ -1,6 +1,6 @@
 from stem import Signal
 from stem.control import Controller
-from conf import torControlPassword
+from src.conf import torControlPassword
 
 
 def change_ip():
