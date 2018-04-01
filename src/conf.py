@@ -17,6 +17,8 @@ dbUser = ''
 dbPass = ''
 maxArticle = 10
 maxCArtcile = 20
+torControlPassword = ''
+productionMode = False
 
 
 def db_client():

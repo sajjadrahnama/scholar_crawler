@@ -2,8 +2,9 @@ import scrapy
 import re
 import logging
 import time
-from conf import db_client, maxCArtcile
+from conf import db_client, maxCArtcile, productionMode
 from article_model import ArticleModel
+from tor import change_ip
 
 
 class CitationSpider(scrapy.Spider):
@@ -54,6 +55,8 @@ class CitationSpider(scrapy.Spider):
         start = int(re.findall('start=([\d]+)', response.url)[0]) + 10
         next_page = re.sub('start=[0-9]*$', 'start=' + str(start), response.url)
 
+        if start % 250 == 0 and productionMode:
+            change_ip()
         if start < maxCArtcile:
             yield response.follow(next_page, callback=self.parse, meta=response.meta)
 

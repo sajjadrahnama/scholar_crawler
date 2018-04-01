@@ -2,8 +2,9 @@ import scrapy
 import re
 import logging
 import time
-from conf import db_client, maxArticle
+from conf import db_client, maxArticle, productionMode
 from article_model import ArticleModel
+from tor import change_ip
 
 
 class MainSpider(scrapy.Spider):
@@ -51,6 +52,9 @@ class MainSpider(scrapy.Spider):
             except Exception:
                 log(response, i)
         self.start += 10
+
+        if self.start % 250 == 0 and productionMode:
+            change_ip()
         next_page = re.sub('start=[0-9]*$', 'start=' + str(self.start), response.url)
 
         if self.start < maxArticle:
