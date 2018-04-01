@@ -10,6 +10,9 @@ class CitationSpider(scrapy.Spider):
     handle_httpstatus_list = [403, 503, 302, 31]
     dont_redirect = True
     name = "citation"
+    custom_settings = {
+        'DOWNLOAD_DELAY': 3,
+    }
 
     def __init__(self):
         logging.getLogger('scrapy').setLevel(logging.ERROR)
