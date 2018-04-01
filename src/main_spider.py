@@ -59,9 +59,11 @@ class MainSpider(scrapy.Spider):
                 i += 1
             except Exception:
                 log(response, i)
+            if not response.css('.gs_r.gs_or.gs_scl .gs_ri'):
+                log(response, -400)
         self.start += 10
 
-        if self.start % 250 == 249 and productionMode:
+        if self.start % 250 == 0 and productionMode:
             change_ip()
         next_page = re.sub('start=[0-9]*$', 'start=' + str(self.start), response.url)
 

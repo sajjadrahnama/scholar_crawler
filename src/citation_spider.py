@@ -57,6 +57,8 @@ class CitationSpider(scrapy.Spider):
                 self.cite(model.id, response.meta['article']['_id'])
             except Exception:
                 pass
+            if not response.css('.gs_r.gs_or.gs_scl .gs_ri'):
+                log(response, -400)
         start = int(re.findall('start=([\d]+)', response.url)[0]) + 10
         next_page = re.sub('start=[0-9]*$', 'start=' + str(start), response.url)
 
