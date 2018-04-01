@@ -1,1 +1,13 @@
-Speech processing
+Speech Processing
+Image Processing
+Deep Learning
+Pattern Recognition
+Big Data
+Stream Mining
+Data Mining
+Natural Language Processing
+Robotics
+Computer Vision
+Graph Mining
+Machine Learning
+Neural Networks
