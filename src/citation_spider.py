@@ -5,12 +5,14 @@ import time
 from conf import db_client, maxCArtcile, productionMode
 from article_model import ArticleModel
 from tor import change_ip
+from user_agent import RandomUserAgent
 
 
 class CitationSpider(scrapy.Spider):
     handle_httpstatus_list = [403, 503, 302, 31]
     dont_redirect = True
     name = "citation"
+
     custom_settings = {
         'DOWNLOAD_DELAY': 3,
     }
@@ -18,14 +20,17 @@ class CitationSpider(scrapy.Spider):
     def __init__(self):
         logging.getLogger('scrapy').setLevel(logging.ERROR)
         self.collection = db_client().scholar.citaions
+        self.user_agents = RandomUserAgent()
         super().__init__()
 
     def start_requests(self):
         collection = db_client().scholar.articles
         cursor = collection.find({'citations_flag': False})
         for article in cursor:
-            yield scrapy.Request(url=article['citations_link'] + 'start=0', callback=self.parse,
+            req = scrapy.Request(url=article['citations_link'] + 'start=0', callback=self.parse,
                                  meta={'article': article})
+            req = self.user_agents.set_header(req)
+            yield req
             collection.update_one({'_id': article['_id']}, {"$set": {
                 'citations_flag': True
             }})

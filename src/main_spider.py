@@ -5,6 +5,7 @@ import time
 from conf import db_client, maxArticle, productionMode
 from article_model import ArticleModel
 from tor import change_ip
+from user_agent import RandomUserAgent
 
 
 class MainSpider(scrapy.Spider):
@@ -12,17 +13,24 @@ class MainSpider(scrapy.Spider):
     dont_redirect = True
     name = "main"
 
+    custom_settings = {
+        'DOWNLOAD_DELAY': 3
+    }
+
     def __init__(self, topic):
         logging.getLogger('scrapy').setLevel(logging.ERROR)
         self.start = 0
         self.topic = topic
+        self.user_agents = RandomUserAgent()
         super().__init__()
 
     def start_requests(self):
         base_url = "https://scholar.google.com/scholar?as_vis=1&as_sdt=1,5&q={}&hl=en&start=0"
         url = base_url.format(re.sub(' ', '+', self.topic))
         insert_topic(self.topic)
-        yield scrapy.Request(url=url, callback=self.parse)
+        req = scrapy.Request(url=url, callback=self.parse)
+        req = self.user_agents.set_header(req)
+        yield req
 
     def parse(self, response):
         log(response)
@@ -53,7 +61,7 @@ class MainSpider(scrapy.Spider):
                 log(response, i)
         self.start += 10
 
-        if self.start % 250 == 0 and productionMode:
+        if self.start % 250 == 249 and productionMode:
             change_ip()
         next_page = re.sub('start=[0-9]*$', 'start=' + str(self.start), response.url)
 
