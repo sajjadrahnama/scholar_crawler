@@ -69,8 +69,8 @@ class MainSpider(scrapy.Spider):
 
         self.start += 10
 
-        if self.start % 250 == 0 and productionMode:
-            change_ip()
+        # if self.start % 250 == 0 and productionMode:
+        #     change_ip()
         next_page = re.sub('start=[0-9]*$', 'start=' + str(self.start), response.url)
 
         if self.start < maxArticle:
