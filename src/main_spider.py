@@ -68,7 +68,7 @@ class MainSpider(scrapy.Spider):
             log(response, -400)
             print('400\t User Agent:  ' + str(response.request.headers['User-Agent']))
             self.proxy = self.proxy_factory.proxy()
-            print('new proxy: ' + str(self.proxy.address))
+            print('new proxy: ' + str(self.proxy['address']))
         else:
             save_topic(self.topic, self.start + 10)
             print('200\t User Agent:  ' + str(response.request.headers['User-Agent']))
@@ -85,7 +85,7 @@ class MainSpider(scrapy.Spider):
 
     def set_proxy(self, req):
         if self.proxy:
-            req.meta['proxy'] = self.proxy.address
+            req.meta['proxy'] = self.proxy['address']
 
 
 def extract_authors(raw):
