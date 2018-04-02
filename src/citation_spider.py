@@ -26,15 +26,12 @@ class CitationSpider(scrapy.Spider):
 
     def start_requests(self):
         collection = db_client().scholar.articles
-        cursor = collection.find({'citations_flag': False})
+        cursor = collection.find({'citations_index': {"$lt": maxCArtcile}})
         for article in cursor:
             req = scrapy.Request(url=article['citations_link'] + 'start=0', callback=self.parse,
                                  meta={'article': article})
             req = self.user_agents.set_header(req)
             yield req
-            collection.update_one({'_id': article['_id']}, {"$set": {
-                'citations_flag': True
-            }})
 
     def parse(self, response):
         log(response)
@@ -51,22 +48,29 @@ class CitationSpider(scrapy.Spider):
                     'citations': int(
                         re.search('(\d+)', obj.css('.gs_fl').xpath('string(a[3])').extract_first()).group(1)),
                     'citations_link': scholar_url + obj.css('.gs_fl').xpath('a[3]/@href').extract_first() + '&as_vis=1',
-                    'citations_flag': True,
+                    'citations_index': -1,
                 }
                 model = ArticleModel(data)
                 model.save()
                 self.cite(model.id, response.meta['article']['_id'])
             except Exception:
                 pass
-            if not response.css('.gs_r.gs_or.gs_scl .gs_ri'):
-                log(response, -400)
-        start = int(re.findall('start=([\d]+)', response.url)[0]) + 10
+        if not response.css('.gs_r.gs_or.gs_scl .gs_ri'):
+            log(response, -400)
+            print('400\t User Agent:  ' + str(response.request.headers['User-Agent']))
+        else:
+            self.collection.update_one({'_id': response.meta['article']['_id']}, {"$inc": {"citations_index": 10, }})
+            print('200\t User Agent:  ' + str(response.request.headers['User-Agent']))
+            start = int(re.findall('start=([\d]+)', response.url)[0]) + 10
+
         next_page = re.sub('start=[0-9]*$', 'start=' + str(start), response.url)
 
-        if start % 250 == 0 and productionMode:
-            change_ip()
+        # if start % 250 == 0 and productionMode:
+        #     change_ip()
         if start < maxCArtcile:
-            yield response.follow(next_page, callback=self.parse, meta=response.meta)
+            req = scrapy.Request(url=next_page, callback=self.parse, meta=response.meta)
+            req = self.user_agents.set_header(req)
+            yield req
 
     def cite(self, source, dest):
         self.collection.insert_one({
@@ -92,6 +96,6 @@ def log(response, error=-1):
     res += start + '\t'
     res += str(response.meta['article']['_id']) + '\n'
     if error != -1:
-        res = '\nERROR\t' + error + '\n' + res
-    with open("logs/citation.txt", "a") as file:
+        res = 'ERROR\t' + str(error) + '\n' + res + '\n'
+    with open("logs/main.txt", "a") as file:
         file.write(res)
