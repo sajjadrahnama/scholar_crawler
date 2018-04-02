@@ -30,7 +30,7 @@ def db_client():
 
 def next_topic():
     collection = db_client().scholar.topics
-    article = collection.find_one({'index': {"$lte": maxArticle}})
+    article = collection.find_one({'index': {"$lt": maxArticle}})
     print(article)
     return article
 
