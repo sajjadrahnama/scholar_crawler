@@ -69,7 +69,7 @@ class CitationSpider(scrapy.Spider):
         #     change_ip()
         if start < maxCArtcile:
             req = scrapy.Request(url=next_page, callback=self.parse, meta=response.meta)
-            req = self.user_agents.set_header(req)
+            self.user_agents.set_header(req)
             yield req
 
     def cite(self, source, dest):

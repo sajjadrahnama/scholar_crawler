@@ -80,7 +80,8 @@ class MainSpider(scrapy.Spider):
 
         if self.start < maxArticle:
             req = scrapy.Request(url=next_page, callback=self.parse)
-            req = self.user_agents.set_header(req)
+            self.user_agents.set_header(req)
+            self.set_proxy(req)
             yield req
 
     def set_proxy(self, req):
