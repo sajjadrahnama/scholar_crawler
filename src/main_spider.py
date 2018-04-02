@@ -97,6 +97,6 @@ def log(response, error=-1):
     res += start + '\t'
     res += topic + '\n'
     if error != -1:
-        res = '\nERROR\t' + error + '\n' + res
+        res = 'ERROR\t' + str(error) + '\n' + res + '\n'
     with open("logs/main.txt", "a") as file:
         file.write(res)
