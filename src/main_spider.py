@@ -60,10 +60,12 @@ class MainSpider(scrapy.Spider):
                 i += 1
             except Exception:
                 log(response, i)
-            if not response.css('.gs_r.gs_or.gs_scl .gs_ri'):
-                log(response, -400)
-            else:
-                save_topic(self.topic, self.start + 10)
+        if not response.css('.gs_r.gs_or.gs_scl .gs_ri'):
+            log(response, -400)
+            print('400\t User Agent:  ' + str(response.request.headers['User-Agent']))
+        else:
+            save_topic(self.topic, self.start + 10)
+            print('200\t User Agent:  ' + str(response.request.headers['User-Agent']))
 
         self.start += 10
 
@@ -72,7 +74,9 @@ class MainSpider(scrapy.Spider):
         next_page = re.sub('start=[0-9]*$', 'start=' + str(self.start), response.url)
 
         if self.start < maxArticle:
-            yield response.follow(next_page, callback=self.parse)
+            req = scrapy.Request(url=next_page, callback=self.parse)
+            req = self.user_agents.set_header(req)
+            yield req
 
 
 def extract_authors(raw):
