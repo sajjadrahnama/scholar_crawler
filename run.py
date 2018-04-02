@@ -25,7 +25,6 @@ def run(topic, index):
     reactor.run()
 
 
+# while True:
 topic = next_topic()
-while topic:
-    run(topic['topic'], topic['index'])
-    topic = next_topic()
+run(topic['topic'], topic['index'])
