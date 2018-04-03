@@ -23,8 +23,8 @@ class MainSpider(scrapy.Spider):
         self.start = index
         self.topic = topic
         self.user_agents = RandomUserAgent()
-        # self.proxy_factory = HttpProxy()
-        # self.proxy = None
+        self.proxy_factory = HttpProxy()
+        self.proxy = self.proxy_factory.proxy()
         super().__init__()
 
     def start_requests(self):
@@ -32,7 +32,7 @@ class MainSpider(scrapy.Spider):
         url = base_url.format(re.sub(' ', '+', self.topic))
         req = scrapy.Request(url=url, callback=self.parse)
         self.user_agents.set_header(req)
-        # self.set_proxy(req)
+        self.set_proxy(req)
         if self.start < maxArticle:
             yield req
 
@@ -63,11 +63,12 @@ class MainSpider(scrapy.Spider):
                 i += 1
             except Exception:
                 log(response, i)
-        if not response.css('.gs_r.gs_or.gs_scl .gs_ri'):
+
+        if not response.css('#gs_res_ccl #gs_n'):
             log(response, -400)
             print('400\t User Agent:  ' + str(response.request.headers['User-Agent']))
-            # self.proxy = self.proxy_factory.proxy()
-            # print('new proxy: ' + str(self.proxy['address']))
+            self.proxy = self.proxy_factory.proxy()
+            print('new proxy: ' + str(self.proxy['address']))
         else:
             save_topic(self.topic, self.start + 10)
             print('200\t User Agent:  ' + str(response.request.headers['User-Agent']))
@@ -80,12 +81,13 @@ class MainSpider(scrapy.Spider):
         if self.start < maxArticle:
             req = scrapy.Request(url=next_page, callback=self.parse)
             self.user_agents.set_header(req)
-            # self.set_proxy(req)
+            self.set_proxy(req)
             yield req
 
-    # def set_proxy(self, req):
-    #     if self.proxy:
-    #         req.meta['proxy'] = self.proxy['address']
+    def set_proxy(self, req):
+        print('proxy used: ' + self.proxy['address'])
+        if self.proxy:
+            req.meta['proxy'] = self.proxy['address']
 
 
 def extract_authors(raw):
@@ -109,3 +111,8 @@ def log(response, error=-1):
         res = 'ERROR\t' + str(error) + '\n' + res + '\n'
     with open("logs/main.txt", "a") as file:
         file.write(res)
+
+
+def log_to_file(text, file):
+    with open(file, "a") as file:
+        file.write(text)
