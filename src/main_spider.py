@@ -4,7 +4,6 @@ import logging
 import time
 from src.conf import db_client, maxArticle, productionMode, save_topic
 from src.article_model import ArticleModel
-from src.tor import change_ip
 from src.user_agent import RandomUserAgent
 from src.proxy import HttpProxy
 
@@ -24,8 +23,8 @@ class MainSpider(scrapy.Spider):
         self.start = index
         self.topic = topic
         self.user_agents = RandomUserAgent()
-        self.proxy_factory = HttpProxy()
-        self.proxy = None
+        # self.proxy_factory = HttpProxy()
+        # self.proxy = None
         super().__init__()
 
     def start_requests(self):
@@ -33,7 +32,7 @@ class MainSpider(scrapy.Spider):
         url = base_url.format(re.sub(' ', '+', self.topic))
         req = scrapy.Request(url=url, callback=self.parse)
         self.user_agents.set_header(req)
-        self.set_proxy(req)
+        # self.set_proxy(req)
         if self.start < maxArticle:
             yield req
 
@@ -67,8 +66,8 @@ class MainSpider(scrapy.Spider):
         if not response.css('.gs_r.gs_or.gs_scl .gs_ri'):
             log(response, -400)
             print('400\t User Agent:  ' + str(response.request.headers['User-Agent']))
-            self.proxy = self.proxy_factory.proxy()
-            print('new proxy: ' + str(self.proxy['address']))
+            # self.proxy = self.proxy_factory.proxy()
+            # print('new proxy: ' + str(self.proxy['address']))
         else:
             save_topic(self.topic, self.start + 10)
             print('200\t User Agent:  ' + str(response.request.headers['User-Agent']))
@@ -84,9 +83,9 @@ class MainSpider(scrapy.Spider):
             self.set_proxy(req)
             yield req
 
-    def set_proxy(self, req):
-        if self.proxy:
-            req.meta['proxy'] = self.proxy['address']
+    # def set_proxy(self, req):
+    #     if self.proxy:
+    #         req.meta['proxy'] = self.proxy['address']
 
 
 def extract_authors(raw):

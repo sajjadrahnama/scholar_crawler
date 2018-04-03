@@ -61,12 +61,10 @@ class CitationSpider(scrapy.Spider):
         else:
             self.collection.update_one({'_id': response.meta['article']['_id']}, {"$inc": {"citations_index": 10, }})
             print('200\t User Agent:  ' + str(response.request.headers['User-Agent']))
-            start = int(re.findall('start=([\d]+)', response.url)[0]) + 10
 
+        start = int(re.findall('start=([\d]+)', response.url)[0]) + 10
         next_page = re.sub('start=[0-9]*$', 'start=' + str(start), response.url)
 
-        # if start % 250 == 0 and productionMode:
-        #     change_ip()
         if start < maxCArtcile:
             req = scrapy.Request(url=next_page, callback=self.parse, meta=response.meta)
             self.user_agents.set_header(req)
