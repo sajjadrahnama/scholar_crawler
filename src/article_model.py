@@ -28,7 +28,7 @@ class ArticleModel:
             self.year = data['year']
             self.citations = data['citations']
             self.citations_link = data['citations_link']
-            self.citations_flag = data['citations_flag']
+            self.citations_index = data['citations_index']
             if 'topic' in data:
                 self.topics = {data['topic']: data['index']}
             else:
@@ -59,7 +59,7 @@ class ArticleModel:
         self.year = data['year']
         self.citations = data['citations']
         self.citations_link = data['citations_link']
-        self.citations_flag = data['citations_flag']
+        self.citations_index = data['citations_index']
 
     def update(self):
         result = self.collection.update_one({'_id': ObjectId(self._id)}, {"$set": {
@@ -71,7 +71,7 @@ class ArticleModel:
             'year': self.year,
             'citations': self.citations,
             'citations_link': self.citations_link,
-            'citations_flag': self.citations_flag,
+            'citations_index': self.citations_index,
         }}, upsert=False)
         # print(result.matched_count)
 
@@ -85,7 +85,7 @@ class ArticleModel:
             'year': self.year,
             'citations': self.citations,
             'citations_link': self.citations_link,
-            'citations_flag': self.citations_flag,
+            'citations_index': self.citations_index,
         }).inserted_id
 
     def existence_check(self):
