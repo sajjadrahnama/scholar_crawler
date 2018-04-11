@@ -16,4 +16,3 @@ class RandomUserAgent(object):
         user_agent = random.choice(self.user_agents)
         if user_agent:
             request.headers.setdefault('User-Agent', user_agent)
-        return request
